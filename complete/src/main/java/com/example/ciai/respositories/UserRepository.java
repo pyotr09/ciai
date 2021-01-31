@@ -1,5 +1,6 @@
-package com.example.accessingdatamysql;
+package com.example.ciai.respositories;
 
+import com.example.ciai.models.User;
 import org.springframework.data.repository.CrudRepository;
 
 // This will be AUTO IMPLEMENTED by Spring into a Bean called userRepository
