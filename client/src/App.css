@@ -1,5 +1,5 @@
 html, #root {
-  background-color: #282c34;
+  background-color: #d3d8e3;
 }
 
 .row {
@@ -16,25 +16,25 @@ a.app-link:hover {
 }
 
 .container-fluid {
-  color: white;
+  color: black;
   text-align: center;
   padding-top: 40px;
 }
 
 .flex-container {
-  color: white;
+  color: black;
   text-align: center;
   padding-top: 40px;
 }
 
 .container {
-  color: white;
+  color: black;
   text-align: left;
   padding-top: 40px;
 }
 
 .accounts-title {
-  color: white;
+  color: black;
 }
 
 .account-container {
@@ -44,6 +44,11 @@ a.app-link:hover {
   border-radius: 10px;
   color: #282c34;
   font-size: calc(10px + 1.0vmin);
+}
+
+.formControl {
+  margin: 5px;
+  minWidth: 120;
 }
 
 .account-container h3 {

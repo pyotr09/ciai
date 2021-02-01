@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import { Link } from 'react-router-dom';
-import { Button, Container } from 'reactstrap';
+import {Button, Container} from '@material-ui/core';
 
 class Home extends Component {
 
@@ -12,23 +12,21 @@ class Home extends Component {
         return (
             <div className="app">
                 {this.props.navbar}
-                <Container fluid>
+                <Container>
                     {this.props.authenticated ?
                         <div>
                             <p>Welcome, {this.props.user.name}</p>
-                            <Button color="secondary">
-                                <Link className="app-link" to="/accounts">Manage Accounts</Link>
-                            </Button>
-                            <Button color="secondary">
-                                <Link className="app-link" to="/transactions">Manage Transactions</Link>
-                            </Button>
+                            <Button variant="contained" color="primary" component={Link} to="/accounts">Manage Accounts</Button>
+                            <br/>
+                            <Button variant="contained" color="primary" component={Link} to="/transactions">Manage Transactions</Button>
+
                         </div> :
                         <div>
                             <p>Please log in.</p>
-                            <Button color="secondary" disabled={true}>
+                            <Button color="primary" disabled={true}>
                                 Manage Accounts
                             </Button>
-                            <Button color="secondary" disabled={true}>
+                            <Button color="primary" disabled={true}>
                                 Manage Transactions
                             </Button>
                         </div>

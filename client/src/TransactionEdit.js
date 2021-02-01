@@ -1,18 +1,11 @@
 import React, {Component} from 'react';
 import {Link, withRouter} from 'react-router-dom';
-import {
-    Alert,
-    Button,
-    Container,
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownToggle,
-    Form,
-    FormGroup,
-    Input,
-    Label
-} from 'reactstrap';
+import {Select, TextField, InputLabel, MenuItem, FormControl,
+FormGroup, InputAdornment, Container, Button} from "@material-ui/core";
+import {Alert} from "@material-ui/lab";
+import {KeyboardDatePicker} from '@material-ui/pickers';
+import {MuiPickersUtilsProvider} from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
 
 class TransactionEdit extends Component {
 
@@ -35,11 +28,12 @@ class TransactionEdit extends Component {
             errorMessage: null,
             isCreate: false,
             account : this.emptyAccount,
-            dropdownOpen: false,
             accountsForLookup : []
         };
         this.handleChange = this.handleChange.bind(this);
+        this.handleAccountChange = this.handleAccountChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleDateChange = this.handleDateChange.bind(this);
     }
 
     async componentDidMount() {
@@ -77,6 +71,18 @@ class TransactionEdit extends Component {
         this.setState({item});
     }
 
+    handleDateChange(date) {
+        let item = {...this.state.item};
+        item["date"] = new Date(date).toISOString();
+        this.setState({item});
+    }
+
+    handleAccountChange(event) {
+        const accName = event.target.value;
+        const acc = this.state.accountsForLookup.find(acc => acc.name === accName);
+        this.setState({account: acc});
+    }
+
     async handleSubmit(event) {
         event.preventDefault();
         const {item, isCreate, account} = this.state;
@@ -94,10 +100,8 @@ class TransactionEdit extends Component {
 
     }
 
-    toggle = () => this.setState({dropdownOpen: !this.state.dropdownOpen});
-
     render() {
-        const {item, errorMessage, isCreate, account, dropdownOpen} = this.state;
+        const {item, errorMessage, isCreate, account} = this.state;
         const dateString = item.date.substring(0, 10);
         const title = <h2>{isCreate ? 'Add Transaction' : 'Edit Transaction'}</h2>;
         const accountsForLookup = this.state.accountsForLookup;
@@ -108,50 +112,57 @@ class TransactionEdit extends Component {
                 <Container style={{textAlign: 'left'}}>
                     {title}
                     {errorMessage ?
-                        <Alert color="warning">
+                        <Alert severity="warning">
                             {errorMessage}
                         </Alert> : null
                     }
-                    <Form onSubmit={this.handleSubmit}>
+                    <form onSubmit={this.handleSubmit}>
                         <div className="row">
                             <FormGroup className="col-md-8 mb-3">
-                                <Label for="name">Description</Label>
-                                <Input type="text" name="description" id="description" value={item.description || ''}
-                                       onChange={this.handleChange} autoComplete="name"/>
+                                <TextField id="description" label="Description" value={item.description || ''}
+                                           onChange={this.handleChange} />
                             </FormGroup>
                             <FormGroup className="col-md-4 mb-3">
-                                <Label for="amount">Amount</Label>
-                                <Input type="text" name="amount" id="amount" value={item.amount || ''}
-                                       onChange={this.handleChange} />
+                                <TextField id="amount" label="Amount" value={item.amount || 0.00}
+                                           onChange={this.handleChange}
+                                           InputProps={{
+                                               startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                           }} />
                             </FormGroup>
                             <FormGroup className="col-md-4 mb-3">
-                                <Label for="date">Date</Label>
-                                <Input type="date" name="date" id="date" value={dateString}
-                                       onChange={this.handleChange} />
+                                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                    <KeyboardDatePicker
+                                        disableToolbar
+                                        variant="inline"
+                                        format="MM/dd/yyyy"
+                                        margin="normal"
+                                        id="date-picker"
+                                        label="Date"
+                                        value={dateString || new Date()}
+                                        onChange={date => this.handleDateChange(date)}
+                                        KeyboardButtonProps={{
+                                            'aria-label': 'change date',
+                                        }}
+                                    />
+                                </MuiPickersUtilsProvider>
                             </FormGroup>
                         </div>
                         <FormGroup>
-                            <Label for="account">Account</Label>
-                            <Input type="text" name="account" id="account" value={account.name || ''}
-                                   onChange={this.handleChange} disabled />
-                            <Dropdown isOpen={dropdownOpen} toggle={this.toggle}>
-                                <DropdownToggle caret>
-                                    Choose Account
-                                </DropdownToggle>
-                                <DropdownMenu right>
-                                    <DropdownItem header>Accounts</DropdownItem>
+                            <InputLabel id="account-select-label">Account</InputLabel>
+                            <FormControl className="col-md-4 mb-3">
+                                <Select value={account.name} id={"account-select"} labelId={"account-select-label"}
+                                    onChange={this.handleAccountChange}>
                                     {accountsForLookup.map(acc =>
-                                        <DropdownItem key={acc.id} onClick={() =>this.setState({account: acc})}>
-                                            {acc.name}</DropdownItem>
+                                        <MenuItem key={acc.id} value={acc.name}>{acc.name}</MenuItem>
                                     )}
-                                </DropdownMenu>
-                            </Dropdown>
+                                </Select>
+                            </FormControl>
                         </FormGroup>
                         <FormGroup>
-                            <Button color="primary" type="submit">Save</Button>{' '}
-                            <Button color="secondary" tag={Link} to="/transactions">Cancel</Button>
+                            <Button variant="contained" color="primary" type="submit">Save</Button>{' '}
+                            <Button color="primary" component={Link} to="/transactions">Cancel</Button>
                         </FormGroup>
-                    </Form>
+                    </form>
                 </Container>
             </div>
         );

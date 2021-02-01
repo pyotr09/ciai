@@ -1,24 +1,30 @@
 import React, { Component } from 'react';
-import {
-    Alert,
-    Button
-} from 'reactstrap';
+import {Alert} from "@material-ui/lab";
+import {Button, Card, CardActions, CardContent, Typography} from "@material-ui/core";
 import { Link } from 'react-router-dom';
 
 const Transaction = (props) => (
     <div className="transactions-container p-2 m-2 d-flex flex-column">
-        <h3>{props.description}</h3>
-        <div className="transactions-body">
-            <div className="subtitle-container">
-                <div>Amount: ${props.amount}</div>
-                <div>Date: {new Date(props.date).toLocaleDateString()}</div>
-                <div>Account: {props.account.name}</div>
-            </div>
-        </div>
-        <div className="transaction-footer">
-            <Button color="secondary" tag={Link} to={'/transactions/' + props.id}>Edit</Button>
-            <Button color="danger" onClick={() => props.remove(props.id)}>Delete</Button>
-        </div>
+        <Card>
+            <CardContent>
+                <Typography variant="h5" component="h2">
+                    {props.description}
+                </Typography>
+                <Typography variant="body2" component="p">
+                    Amount: ${props.amount}
+                </Typography>
+                <Typography variant="body2" component="p">
+                    Date: {new Date(props.date).toLocaleDateString()}
+                </Typography>
+                <Typography variant="body2" component="p">
+                    Account: {props.account.name}
+                </Typography>
+            </CardContent>
+            <CardActions>
+                <Button color="primary" component={Link} to={'/transactions/' + props.id}>Edit</Button>
+                <Button color="secondary" onClick={() => props.remove(props.id)}>Delete</Button>
+            </CardActions>
+        </Card>
     </div>
 );
 
@@ -78,7 +84,7 @@ class TransactionsList extends Component {
                 {this.props.navbar}
                 <div className="d-flex flex-row justify-content-between p-3">
                     <h3 className="transactions-title">Transactions</h3>
-                    <Button color="success" tag={Link} to="/transactions/new">Add New</Button>
+                    <Button variant="contained" color="primary" component={Link} to="/transactions/new">Add New</Button>
                 </div>
                 {errorMessage ?
                     <div className="d-flex flex-row justify-content-center">

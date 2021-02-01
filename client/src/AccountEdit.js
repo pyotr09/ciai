@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { Alert, Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
+import {FormGroup, Button, TextField, Container} from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
 
 class AccountEdit extends Component {
 
@@ -22,20 +23,21 @@ class AccountEdit extends Component {
     }
 
     async componentDidMount() {
-        this.state.isCreate = this.props.match.params.id === 'new'; // are we editing or creating?
-        if (!this.state.isCreate) {
+        const isCreate = this.props.match.params.id === 'new'; // are we editing or creating?
+        if (!isCreate) {
             const response = await this.props.api.getAccountById(this.props.match.params.id);
             const account = await response.json();
             this.setState({item: account});
         }
+        this.setState({isCreate: isCreate})
     }
 
     handleChange(event) {
         const target = event.target;
         const value = target.value;
-        const name = target.name;
+        const id = target.id;
         let item = {...this.state.item};
-        item[name] = value;
+        item[id] = value;
         this.setState({item});
     }
 
@@ -61,36 +63,29 @@ class AccountEdit extends Component {
         return (
             <div>
                 {this.props.navbar}
-                <Container style={{textAlign: 'left'}}>
+                <Container>
                     {title}
                     {errorMessage ?
-                        <Alert color="warning">
+                        <Alert severity="warning">
                             {errorMessage}
                         </Alert> : null
                     }
-                    <Form onSubmit={this.handleSubmit}>
+                    <form onSubmit={this.handleSubmit}>
                         <div className="row">
                             <FormGroup className="col-md-8 mb-3">
-                                <Label for="name">Name</Label>
-                                <Input type="text" name="name" id="name" value={item.name || ''}
-                                       onChange={this.handleChange} autoComplete="name"/>
+                                <TextField id="name" label="Name" value={item.name || ''}
+                                           onChange={this.handleChange} />
                             </FormGroup>
                             <FormGroup className="col-md-4 mb-3">
-                                <Label for="currentBalance">Current Balance</Label>
-                                <Input type="text" name="currentBalance" id="currentBalance" value={item.currentBalance || ''}
+                                       <TextField id="currentBalance" label="Current Balance" value={item.currentBalance || ''}
                                        onChange={this.handleChange} />
                             </FormGroup>
                         </div>
                         <FormGroup>
-                            <Label for="address">Address</Label>
-                            <Input type="text" name="address" id="address" value={item.address || ''}
-                                   onChange={this.handleChange} autoComplete="address-level1"/>
+                            <Button variant="contained" color="primary" type="submit">Save</Button>{' '}
+                            <Button color="default" component={Link} to="/accounts">Cancel</Button>
                         </FormGroup>
-                        <FormGroup>
-                            <Button color="primary" type="submit">Save</Button>{' '}
-                            <Button color="secondary" tag={Link} to="/accounts">Cancel</Button>
-                        </FormGroup>
-                    </Form>
+                    </form>
                 </Container>
             </div>
         );

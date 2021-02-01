@@ -1,22 +1,24 @@
 import React, { Component } from 'react';
-import {
-    Alert,
-    Button
-} from 'reactstrap';
+import {Alert} from "@material-ui/lab";
+import {Button, Card, CardActions, CardContent, Typography} from "@material-ui/core";
 import { Link } from 'react-router-dom';
 
 const Account = (props) => (
     <div className="accounts-container p-2 m-2 d-flex flex-column">
-        <h3>{props.name}</h3>
-        <div className="accounts-body">
-            <div className="subtitle-container">
-                <div>Current Balance: ${props.currentBalance}</div>
-            </div>
-        </div>
-        <div className="account-footer">
-            <Button color="secondary" tag={Link} to={'/accounts/' + props.id}>Edit</Button>
-            <Button color="danger" onClick={() => props.remove(props.id)}>Delete</Button>
-        </div>
+        <Card>
+            <CardContent>
+                <Typography variant="h5" component="h2">
+                    {props.name}
+                </Typography>
+                <Typography variant="body2" component="p">
+                    Current Balance: ${props.currentBalance}
+                </Typography>
+            </CardContent>
+            <CardActions>
+                <Button color="primary" component={Link} to={'/accounts/' + props.id}>Edit</Button>
+                <Button color="secondary" onClick={() => props.remove(props.id)}>Delete</Button>
+            </CardActions>
+        </Card>
     </div>
 );
 
@@ -76,11 +78,11 @@ class AccountsList extends Component {
                 {this.props.navbar}
                 <div className="d-flex flex-row justify-content-between p-3">
                     <h3 className="accounts-title">Accounts</h3>
-                    <Button color="success" tag={Link} to="/accounts/new">Add New</Button>
+                    <Button variant="contained" color="primary" component={Link} to="/accounts/new">Add New</Button>
                 </div>
                 {errorMessage ?
                     <div className="d-flex flex-row justify-content-center">
-                        <Alert color="warning" style={{flex:1, maxWidth:'80%'}}>
+                        <Alert severity="warning" style={{flex:1, maxWidth:'80%'}}>
                             {errorMessage}
                         </Alert>
                     </div> : null
