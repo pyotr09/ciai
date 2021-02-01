@@ -1,9 +1,7 @@
 package com.example.ciai.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Account {
@@ -36,5 +34,8 @@ public class Account {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+    @OneToMany(mappedBy = "account")
+    private List<Transaction> transactions;
 
 }

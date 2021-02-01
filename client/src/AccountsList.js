@@ -34,7 +34,7 @@ class AccountsList extends Component {
 
     async componentDidMount() {
         this.setState({isLoading: true});
-        const response = await this.props.api.getAllForUser();
+        const response = await this.props.api.getAllAccountsForUser();
         if (!response.ok) {
             this.setState({
                     errorMessage: `Failed to load accounts: ${response.status} ${response.statusText}`,
@@ -54,7 +54,7 @@ class AccountsList extends Component {
     }
 
     async remove(id) {
-        let response = await this.props.api.delete(id);
+        let response = await this.props.api.deleteAccount(id);
         if (!response.ok) {
             this.setState({errorMessage: `Failed to delete account: ${response.status} ${response.statusText}`})
         }

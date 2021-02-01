@@ -1,5 +1,6 @@
 package com.example.ciai.controllers;
 
+import com.example.ciai.models.Account;
 import com.example.ciai.models.RecurringTransaction;
 import com.example.ciai.models.RecurringType;
 import com.example.ciai.models.Transaction;
@@ -20,18 +21,18 @@ public class TransactionController {
     private RecurringTransactionRepository recurringTransactionRepository;
 
     @PostMapping(path="/add")
-    public @ResponseBody String addNewTransaction(@RequestParam Integer userId,
+    public @ResponseBody String addNewTransaction(@RequestParam String userId,
                              @RequestParam String description,
                              @RequestParam Float amount,
                              @RequestParam Date date,
-                             @RequestParam Integer accountId,
+                             @RequestParam Account account,
                              @RequestParam Integer fromAccountId) {
 
         Transaction t = new Transaction();
         t.setUserId(userId);
         t.setDescription(description);
         t.setDate(date);
-        t.setAccountId(accountId);
+        t.setAccount(account);
         if (fromAccountId != -1)
             t.setToAccountId(fromAccountId);
         t.setAmount(amount);
@@ -41,6 +42,12 @@ public class TransactionController {
     }
 
     @GetMapping(path="/get")
+    public @ResponseBody Iterable<Transaction> getTransactions(
+            @RequestParam String userId) {
+        return transactionRepository.findByUserId(userId);
+    }
+
+    @GetMapping(path="/getForDate")
     public @ResponseBody Iterable<Transaction> getTransactionsForAccountBetweenDates(
             @RequestParam String userId,
             @RequestParam Integer accountId,

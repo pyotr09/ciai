@@ -8,6 +8,8 @@ import AccountEdit from './AccountEdit';
 import { withOktaAuth } from '@okta/okta-react';
 import Api from './Api';
 import NavBar from './NavBar';
+import TransactionsList from "./TransactionsList";
+import TransactionEdit from "./TransactionEdit";
 
 const AuthWrapper = withOktaAuth(class WrappedRoutes extends Component {
     constructor(props) {
@@ -76,6 +78,17 @@ const AuthWrapper = withOktaAuth(class WrappedRoutes extends Component {
                     path='/accounts/:id'
                     render={(props) => <AccountEdit {...props} authenticated={authenticated} userId={user.sub} api={api}
                                                        navbar={navbar} />}
+                />
+                <SecureRoute
+                    path='/transactions'
+                    exact={true}
+                    render={(props) => <TransactionsList {...props} authenticated={authenticated} user={user} api={api}
+                                                     navbar={navbar}/>}
+                />
+                <SecureRoute
+                    path='/transactions/:id'
+                    render={(props) => <TransactionEdit {...props} authenticated={authenticated} userId={user.sub} api={api}
+                                                    navbar={navbar} />}
                 />
             </Switch>
         )

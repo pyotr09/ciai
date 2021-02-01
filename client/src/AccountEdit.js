@@ -24,7 +24,7 @@ class AccountEdit extends Component {
     async componentDidMount() {
         this.state.isCreate = this.props.match.params.id === 'new'; // are we editing or creating?
         if (!this.state.isCreate) {
-            const response = await this.props.api.getById(this.props.match.params.id);
+            const response = await this.props.api.getAccountById(this.props.match.params.id);
             const account = await response.json();
             this.setState({item: account});
         }
@@ -43,7 +43,7 @@ class AccountEdit extends Component {
         event.preventDefault();
         const {item, isCreate} = this.state;
 
-        let result = isCreate ? await this.props.api.create(item) : await this.props.api.update(item);
+        let result = isCreate ? await this.props.api.createAccount(item) : await this.props.api.updateAccount(item);
 
         if (!result.ok) {
             this.setState({errorMessage: `Failed to ${isCreate ? 'create' : 'update'} record: ${result.status} ${result.statusText}`})

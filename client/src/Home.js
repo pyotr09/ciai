@@ -16,17 +16,20 @@ class Home extends Component {
                     {this.props.authenticated ?
                         <div>
                             <p>Welcome, {this.props.user.name}</p>
-                            <p>email, {this.props.user.email}</p>
-                            <p>email, {this.props.user.id}</p>
-                            <p>user, {JSON.stringify(this.props.user)}</p>
                             <Button color="secondary">
                                 <Link className="app-link" to="/accounts">Manage Accounts</Link>
                             </Button>
+                            <Button color="secondary">
+                                <Link className="app-link" to="/transactions">Manage Transactions</Link>
+                            </Button>
                         </div> :
                         <div>
-                            <p>Please log in to manage accounts.</p>
+                            <p>Please log in.</p>
                             <Button color="secondary" disabled={true}>
                                 Manage Accounts
+                            </Button>
+                            <Button color="secondary" disabled={true}>
+                                Manage Transactions
                             </Button>
                         </div>
                     }
