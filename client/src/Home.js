@@ -15,7 +15,7 @@ class Home extends Component {
                 <Container>
                     {this.props.authenticated ?
                         <div>
-                            <p>Welcome, {this.props.user.name}</p>
+                            {/*<p>Welcome, {this.props.user.name}</p>*/}
                             <Button variant="contained" color="primary" component={Link} to="/accounts">Manage Accounts</Button>
                             <br/>
                             <Button variant="contained" color="primary" component={Link} to="/transactions">Manage Transactions</Button>

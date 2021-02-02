@@ -47,6 +47,12 @@ public class TransactionController {
         return transactionRepository.findByUserId(userId);
     }
 
+    @GetMapping(path="/getRecurring")
+    public @ResponseBody Iterable<RecurringTransaction> getRecurringTransactions(
+            @RequestParam String userId) {
+        return recurringTransactionRepository.findByUserId(userId);
+    }
+
     @GetMapping(path="/getForDate")
     public @ResponseBody Iterable<Transaction> getTransactionsForAccountBetweenDates(
             @RequestParam String userId,
@@ -64,7 +70,7 @@ public class TransactionController {
             @RequestParam Float amount,
             @RequestParam Date startDate,
             @RequestParam Date endDate,
-            @RequestParam Integer accountId,
+            @RequestParam Account account,
             @RequestParam Integer toAccountId,
             @RequestParam Integer numDays) {
 
@@ -73,7 +79,7 @@ public class TransactionController {
         t.setDescription(description);
         t.setStartDate(startDate);
         t.setEndDate(endDate);
-        t.setAccountId(accountId);
+        t.setAccount(account);
         t.setType(RecurringType.INTERVAL_FREQUENCY);
         if (toAccountId != -1)
             t.setToAccountId(toAccountId);
@@ -84,7 +90,7 @@ public class TransactionController {
         return "Transaction Saved.";
     }
 
-    @GetMapping(path="/getRecurring")
+    @GetMapping(path="/getRecurringForAccount")
     public @ResponseBody Iterable<RecurringTransaction> getRecurringTransactions(
             @RequestParam String userId,
             @RequestParam Integer accountId) {

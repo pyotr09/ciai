@@ -38,4 +38,6 @@ public class Account {
     @OneToMany(mappedBy = "account")
     private List<Transaction> transactions;
 
+    @OneToMany(mappedBy = "account")
+    private List<RecurringTransaction> recurringTransactions;
 }

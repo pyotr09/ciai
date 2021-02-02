@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {Alert} from "@material-ui/lab";
 import {Button, Card, CardActions, CardContent, Typography} from "@material-ui/core";
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 const Transaction = (props) => (
     <div className="transactions-container p-2 m-2 d-flex flex-column">
@@ -21,7 +21,35 @@ const Transaction = (props) => (
                 </Typography>
             </CardContent>
             <CardActions>
-                <Button color="primary" component={Link} to={'/transactions/' + props.id}>Edit</Button>
+                <Button color="primary" component={Link} to={{pathname: `/transactions/${props.id}`, param1: false}}>Edit</Button>
+                <Button color="secondary" onClick={() => props.remove(props.id)}>Delete</Button>
+            </CardActions>
+        </Card>
+    </div>
+);
+
+const RecurringTransaction = (props) => (
+    <div className="transactions-container p-2 m-2 d-flex flex-column">
+        <Card>
+            <CardContent>
+                <Typography variant="h5" component="h2">
+                    {props.description}
+                </Typography>
+                <Typography variant="body2" component="p">
+                    Amount: ${props.amount}
+                </Typography>
+                <Typography variant="body2" component="p">
+                    Start Date: {new Date(props.startDate).toLocaleDateString()}
+                </Typography>
+                <Typography variant="body2" component="p">
+                    End Date: {new Date(props.endDate).toLocaleDateString()}
+                </Typography>
+                <Typography variant="body2" component="p">
+                    Account: {props.account.name}
+                </Typography>
+            </CardContent>
+            <CardActions>
+                <Button color="primary" component={Link} to={{pathname: `/transactions/${props.id}`, param1: true}}>Edit</Button>
                 <Button color="secondary" onClick={() => props.remove(props.id)}>Delete</Button>
             </CardActions>
         </Card>
@@ -34,15 +62,18 @@ class TransactionsList extends Component {
         super(props);
         this.state = {
             transactions: [],
+            recurringTransactions: [],
             isLoading: true,
             errorMessage: null
         };
         this.remove = this.remove.bind(this);
+        this.removeRecurring = this.removeRecurring.bind(this);
     }
 
     async componentDidMount() {
         this.setState({isLoading: true});
         const response = await this.props.api.getAllTransactionsForUser();
+        const recurringResponse = await this.props.api.getAllRecurringTransForUser();
         if (!response.ok) {
             this.setState({
                     errorMessage: `Failed to load transactions: ${response.status} ${response.statusText}`,
@@ -50,11 +81,19 @@ class TransactionsList extends Component {
                 }
             )
         }
+        else if (!recurringResponse.ok) {
+            this.setState({
+                    errorMessage: `Failed to load recurring transactions: ${recurringResponse.status} ${recurringResponse.statusText}`,
+                    isLoading: false
+                }
+            )
+        }
         else {
-            const body = await response.json();
-            const transactions = body;
+            const transactions = await response.json();
+            const recurTransactions = await recurringResponse.json();
             this.setState({
                 transactions: transactions,
+                recurringTransactions: recurTransactions,
                 isLoading: false,
                 errorMessage: null
             });
@@ -72,8 +111,19 @@ class TransactionsList extends Component {
         }
     }
 
+    async removeRecurring(id) {
+        let response = await this.props.api.deleteRecurringTransaction(id);
+        if (!response.ok) {
+            this.setState({errorMessage: `Failed to delete recurring transaction: ${response.status} ${response.statusText}`})
+        }
+        else {
+            let updatedTransactions = [...this.state.recurringTransactions].filter(i => i.id !== id);
+            this.setState({recurringTransactions: updatedTransactions, errorMessage: null});
+        }
+    }
+
     render() {
-        const {transactions, isLoading, errorMessage} = this.state;
+        const {transactions, recurringTransactions, isLoading, errorMessage} = this.state;
 
         if (isLoading) {
             return <p>Loading...</p>;
@@ -95,9 +145,16 @@ class TransactionsList extends Component {
                 }
                 <div className="d-flex flex-row flex-container flex-wrap justify-content-center">
                     {transactions.map( transaction =>
-                        <Transaction {...transaction} remove={this.remove.bind(this)} key={transaction.id}/>
+                        <Transaction {...transaction} remove={this.remove} key={transaction.id} />
                     )}
                     {!transactions || transactions.length === 0 ? <p>No transactions!</p> : null}
+                </div>
+                <h4>Recurring Transactions</h4>
+                <div className="d-flex flex-row flex-container flex-wrap justify-content-center">
+                    {recurringTransactions.map( recurTransaction =>
+                        <RecurringTransaction {...recurTransaction} remove={this.removeRecurring} key={recurTransaction.id}/>
+                    )}
+                    {!recurringTransactions || recurringTransactions.length === 0 ? <p>No recurring transactions!</p> : null}
                 </div>
             </div>
         );

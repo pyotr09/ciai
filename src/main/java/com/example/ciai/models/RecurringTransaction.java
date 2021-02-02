@@ -1,9 +1,6 @@
 package com.example.ciai.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -50,13 +47,11 @@ public class RecurringTransaction {
         this.userId = userId;
     }
 
-    private Integer accountId;
-    public Integer getAccountId() {
-        return accountId;
-    }
-    public void setAccountId(Integer accountId) {
-        this.accountId = accountId;
-    }
+    @ManyToOne
+    @JoinColumn(name="account_id")
+    private Account account;
+    public Account getAccount() {return account;}
+    public void setAccount(Account account) {this.account = account;}
 
     private Integer toAccountId;
     public Integer getToAccountId() {

@@ -17,6 +17,7 @@ class Api {
 
     BASE_ACCOUNTS_URL = '/accounts';
     BASE_TRANS_URL = '/transactions';
+    BASE_RECURTRANS_URL = '/recurringTransactions';
 
     createHeaders() {
         return this.headers;
@@ -88,11 +89,18 @@ class Api {
         });
     }
 
-    async getTransactionAccount(tranId) {
-        return await fetch(`${this.BASE_TRANS_URL}/${tranId}/account`, {
-            method: 'GET',
-            headers: this.createHeaders()
-        });
+    async getTransactionAccount(tranId, isRecurring) {
+        console.log(`isRecurring is ${isRecurring}`);
+        return await isRecurring ?
+            fetch(`${this.BASE_RECURTRANS_URL}/${tranId}/account`, {
+                method: 'GET',
+                headers: this.createHeaders()
+            })
+            :
+            fetch(`${this.BASE_TRANS_URL}/${tranId}/account`, {
+                method: 'GET',
+                headers: this.createHeaders()
+            });
     }
 
     async deleteTransaction(id) {
@@ -140,6 +148,60 @@ class Api {
         });
 
         return transResponse;
+    }
+
+    async getAllRecurringTransForUser() {
+        return await fetch(`/transaction/getRecurring?userId=${this.user.sub}`, {
+            method: 'GET',
+            headers: this.createHeaders()
+        });
+    }
+
+    async getRecurringTransactionById(id) {
+        return await fetch(`${this.BASE_RECURTRANS_URL}/${id}`, {
+            method: 'GET',
+            headers: this.createHeaders()
+        });
+    }
+
+    async updateRecurringTransaction(item, account) {
+        let transResponse = await fetch(`${this.BASE_RECURTRANS_URL}/${item.id}`, {
+            method: 'PUT',
+            headers: this.createHeaders(),
+            body: JSON.stringify(item)
+        });
+
+        await fetch(`/recurringTransactions/${item.id}/account`, {
+            method: 'PUT',
+            headers: this.createUriListHeaders(),
+            body: `/accounts/${account.id}`
+        });
+
+        return transResponse;
+    }
+
+    async createRecurringTransaction(item, account) {
+        let transResponse =  await fetch(this.BASE_RECURTRANS_URL, {
+            method: 'POST',
+            headers: this.createHeaders(),
+            body: JSON.stringify(item)
+        });
+
+        const trans = await transResponse.json();
+        await fetch(`/recurringTransactions/${trans.id}/account`, {
+            method: 'PUT',
+            headers: this.createUriListHeaders(),
+            body: `/accounts/${account.id}`
+        });
+
+        return transResponse;
+    }
+
+    async deleteRecurringTransaction(id) {
+        return await fetch(`${this.BASE_RECURTRANS_URL}/${id}`, {
+            method: 'DELETE',
+            headers: this.createHeaders()
+        });
     }
 }
 
