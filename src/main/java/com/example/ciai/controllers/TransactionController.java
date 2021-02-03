@@ -26,15 +26,14 @@ public class TransactionController {
                              @RequestParam Float amount,
                              @RequestParam Date date,
                              @RequestParam Account account,
-                             @RequestParam Integer fromAccountId) {
+                             @RequestParam Account toAccount) {
 
         Transaction t = new Transaction();
         t.setUserId(userId);
         t.setDescription(description);
         t.setDate(date);
         t.setAccount(account);
-        if (fromAccountId != -1)
-            t.setToAccountId(fromAccountId);
+        t.setToAccount(toAccount);
         t.setAmount(amount);
         transactionRepository.save(t);
 
@@ -71,7 +70,7 @@ public class TransactionController {
             @RequestParam Date startDate,
             @RequestParam Date endDate,
             @RequestParam Account account,
-            @RequestParam Integer toAccountId,
+            @RequestParam Account toAccount,
             @RequestParam Integer numDays) {
 
         RecurringTransaction t = new RecurringTransaction();
@@ -81,8 +80,7 @@ public class TransactionController {
         t.setEndDate(endDate);
         t.setAccount(account);
         t.setType(RecurringType.INTERVAL_FREQUENCY);
-        if (toAccountId != -1)
-            t.setToAccountId(toAccountId);
+        t.setToAccount(toAccount);
         t.setAmount(amount);
         t.setDaysInterval(numDays);
         recurringTransactionRepository.save(t);

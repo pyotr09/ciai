@@ -42,11 +42,13 @@ public class Transaction {
     public void setAccount(Account account) {this.account = account;}
 
 
-    private Integer toAccountId;
-    public Integer getToAccountId() {
-        return toAccountId;
+    @ManyToOne
+    @JoinColumn(name = "to_account_id")
+    private Account toAccount;
+    public Account getToAccount() {
+        return toAccount;
     }
-    public void setToAccountId(Integer toAccountId) {
-        this.toAccountId = toAccountId;
+    public void setToAccount(Account toAccount) {
+        this.toAccount = toAccount;
     }
 }

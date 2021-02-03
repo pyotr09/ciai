@@ -11,5 +11,8 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
     Iterable<Transaction> findAllByUserIdAndAccountIdAndDateBetween(String userId, Integer accountId,
                                                                     Date startDate, Date endDate);
 
+    Iterable<Transaction> findAllByUserIdAndToAccountIdAndDateBetween(String userId, Integer toAccountId,
+                                                                    Date startDate, Date endDate);
+
     List<Transaction> findByUserId(String userId);
 }

@@ -40,4 +40,11 @@ public class Account {
 
     @OneToMany(mappedBy = "account")
     private List<RecurringTransaction> recurringTransactions;
+
+    @OneToMany(mappedBy = "toAccount")
+    private List<Transaction> inTransactions;
+
+    @OneToMany(mappedBy = "toAccount")
+    private List<RecurringTransaction> inRecurringTransactions;
+
 }

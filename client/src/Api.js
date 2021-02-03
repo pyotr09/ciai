@@ -90,7 +90,6 @@ class Api {
     }
 
     async getTransactionAccount(tranId, isRecurring) {
-        console.log(`isRecurring is ${isRecurring}`);
         return await isRecurring ?
             fetch(`${this.BASE_RECURTRANS_URL}/${tranId}/account`, {
                 method: 'GET',
@@ -98,6 +97,19 @@ class Api {
             })
             :
             fetch(`${this.BASE_TRANS_URL}/${tranId}/account`, {
+                method: 'GET',
+                headers: this.createHeaders()
+            });
+    }
+
+    async getTransactionToAccount(tranId, isRecurring) {
+        return await isRecurring ?
+            fetch(`${this.BASE_RECURTRANS_URL}/${tranId}/toAccount`, {
+                method: 'GET',
+                headers: this.createHeaders()
+            })
+            :
+            fetch(`${this.BASE_TRANS_URL}/${tranId}/toAccount`, {
                 method: 'GET',
                 headers: this.createHeaders()
             });
@@ -117,7 +129,7 @@ class Api {
         });
     }
 
-    async updateTransaction(item, account) {
+    async updateTransaction(item, account, toAccount) {
         let transResponse = await fetch(`${this.BASE_TRANS_URL}/${item.id}`, {
             method: 'PUT',
             headers: this.createHeaders(),
@@ -130,10 +142,18 @@ class Api {
             body: `/accounts/${account.id}`
         });
 
+        if (toAccount.id) {
+            await fetch(`/transactions/${item.id}/toAccount`, {
+                method: 'PUT',
+                headers: this.createUriListHeaders(),
+                body: `/accounts/${toAccount.id}`
+            });
+        }
+
         return transResponse;
     }
 
-    async createTransaction(item, account) {
+    async createTransaction(item, account, toAccount) {
         let transResponse =  await fetch(this.BASE_TRANS_URL, {
             method: 'POST',
             headers: this.createHeaders(),
@@ -146,6 +166,14 @@ class Api {
             headers: this.createUriListHeaders(),
             body: `/accounts/${account.id}`
         });
+
+        if (toAccount.id) {
+            await fetch(`/transactions/${trans.id}/toAccount`, {
+                method: 'PUT',
+                headers: this.createUriListHeaders(),
+                body: `/accounts/${toAccount.id}`
+            });
+        }
 
         return transResponse;
     }
@@ -164,7 +192,7 @@ class Api {
         });
     }
 
-    async updateRecurringTransaction(item, account) {
+    async updateRecurringTransaction(item, account, toAccount) {
         let transResponse = await fetch(`${this.BASE_RECURTRANS_URL}/${item.id}`, {
             method: 'PUT',
             headers: this.createHeaders(),
@@ -177,10 +205,18 @@ class Api {
             body: `/accounts/${account.id}`
         });
 
+        if (toAccount.id) {
+            await fetch(`/recurringTransactions/${item.id}/toAccount`, {
+                method: 'PUT',
+                headers: this.createUriListHeaders(),
+                body: `/accounts/${toAccount.id}`
+            });
+        }
+
         return transResponse;
     }
 
-    async createRecurringTransaction(item, account) {
+    async createRecurringTransaction(item, account, toAccount) {
         let transResponse =  await fetch(this.BASE_RECURTRANS_URL, {
             method: 'POST',
             headers: this.createHeaders(),
@@ -194,12 +230,27 @@ class Api {
             body: `/accounts/${account.id}`
         });
 
+        if (toAccount.id) {
+            await fetch(`/recurringTransactions/${trans.id}/toAccount`, {
+                method: 'PUT',
+                headers: this.createUriListHeaders(),
+                body: `/accounts/${toAccount.id}`
+            });
+        }
+
         return transResponse;
     }
 
     async deleteRecurringTransaction(id) {
         return await fetch(`${this.BASE_RECURTRANS_URL}/${id}`, {
             method: 'DELETE',
+            headers: this.createHeaders()
+        });
+    }
+
+    async calculateProjection(date) {
+        return await fetch(`/projection/calculate?userId=${this.user.sub}&startDate=${new Date().toLocaleDateString()}&endDate=${date.toLocaleDateString()}`, {
+            method: 'GET',
             headers: this.createHeaders()
         });
     }

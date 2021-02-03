@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import { Link } from 'react-router-dom';
 import {Button, Container} from '@material-ui/core';
+import Projection from './Projection';
 
 class Home extends Component {
 
@@ -15,11 +16,10 @@ class Home extends Component {
                 <Container>
                     {this.props.authenticated ?
                         <div>
-                            {/*<p>Welcome, {this.props.user.name}</p>*/}
+                            <p>Welcome, {this.props.user.name}</p>
                             <Button variant="contained" color="primary" component={Link} to="/accounts">Manage Accounts</Button>
-                            <br/>
                             <Button variant="contained" color="primary" component={Link} to="/transactions">Manage Transactions</Button>
-
+                            <Projection api={this.props.api}/>
                         </div> :
                         <div>
                             <p>Please log in.</p>

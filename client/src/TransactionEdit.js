@@ -39,22 +39,26 @@ class TransactionEdit extends Component {
             errorMessage: null,
             isCreate: false,
             account : this.emptyAccount,
+            toAccount : this.emptyAccount,
             accountsForLookup : [],
-            isRecurring : false
+            isRecurring : false,
+            isTransfer: false
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleAccountChange = this.handleAccountChange.bind(this);
+        this.handleToAccountChange = this.handleToAccountChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDateChange = this.handleDateChange.bind(this);
         this.handleRecurChange = this.handleRecurChange.bind(this);
+        this.handleTransferChange = this.handleTransferChange.bind(this);
         this.handleTypeChange = this.handleTypeChange.bind(this);
         this.handleEndDateChange = this.handleEndDateChange.bind(this);
         this.handleIntervalChange = this.handleIntervalChange.bind(this);
+        this.handleDayOfMonthChange = this.handleDayOfMonthChange.bind(this);
     }
 
     async componentDidMount() {
         this.state.isCreate = this.props.match.params.id === 'new'; // are we editing or creating?
-        console.log(`param1 is ${this.props.location.param1}`);
         const isRecurring = this.props.location.param1;
         if (!this.state.isCreate) {
             let response;
@@ -66,11 +70,20 @@ class TransactionEdit extends Component {
             else {
                 response = await this.props.api.getRecurringTransactionById(this.props.match.params.id);
                 const recurringTransaction = await response.json();
-                this.setState({recurringItem: recurringTransaction});
+                this.setState({recurringItem: recurringTransaction, isTransfer: !!recurringTransaction.toAccount});
             }
             const accResponse = await this.props.api.getTransactionAccount(this.props.match.params.id, isRecurring);
             const account = await accResponse.json();
-            this.setState({account: account, isRecurring : isRecurring})
+            this.setState({account: account, isRecurring : isRecurring});
+
+            const toAccResponse = await this.props.api.getTransactionToAccount(this.props.match.params.id, isRecurring);
+            if (toAccResponse.ok) {
+                const toAccount = await toAccResponse.json();
+                this.setState({toAccount: toAccount, isRecurring : isRecurring, isTransfer: true})
+            }
+            else {
+                this.setState({isRecurring : isRecurring, isTransfer: false})
+            }
         }
         const response = await this.props.api.getAllAccountsForUser();
         if (!response.ok) {
@@ -130,8 +143,18 @@ class TransactionEdit extends Component {
         this.setState({account: acc});
     }
 
+    handleToAccountChange(event) {
+        const accName = event.target.value;
+        const acc = this.state.accountsForLookup.find(acc => acc.name === accName);
+        this.setState({toAccount: acc});
+    }
+
     handleRecurChange(event) {
         this.setState({isRecurring: event.target.checked});
+    }
+
+    handleTransferChange(event) {
+        this.setState({isTransfer: event.target.checked});
     }
 
     handleTypeChange(event) {
@@ -148,17 +171,24 @@ class TransactionEdit extends Component {
         this.setState({recurringItem: recurringItem});
     }
 
+    handleDayOfMonthChange(event) {
+        if (!this.state.isRecurring) return;
+        let recurringItem = {...this.state.recurringItem};
+        recurringItem["dayOfMonth"] = event.target.value;
+        this.setState({recurringItem: recurringItem});
+    }
+
     async handleSubmit(event) {
         event.preventDefault();
-        const {item, recurringItem, isCreate, account, isRecurring} = this.state;
+        const {item, recurringItem, isCreate, account, toAccount, isRecurring} = this.state;
 
         let result = !isRecurring ?
             (isCreate
-                ? await this.props.api.createTransaction(item, account)
-                : await this.props.api.updateTransaction(item, account)) :
+                ? await this.props.api.createTransaction(item, account, toAccount)
+                : await this.props.api.updateTransaction(item, account, toAccount)) :
             (isCreate
-                ? await this.props.api.createRecurringTransaction(recurringItem, account)
-                : await this.props.api.updateRecurringTransaction(recurringItem, account));
+                ? await this.props.api.createRecurringTransaction(recurringItem, account, toAccount)
+                : await this.props.api.updateRecurringTransaction(recurringItem, account, toAccount));
 
         if (!result.ok) {
             this.setState({errorMessage: `Failed to ${isCreate ? 'create' : 'update'} record: ${result.status} ${result.statusText}`})
@@ -170,7 +200,7 @@ class TransactionEdit extends Component {
     }
 
     render() {
-        const {item, recurringItem, errorMessage, isCreate, account, isRecurring} = this.state;
+        const {item, recurringItem, errorMessage, isCreate, account, toAccount, isRecurring, isTransfer} = this.state;
         const boundItem = isRecurring ? recurringItem : item;
         const date = isRecurring ? new Date(boundItem.startDate) : new Date(boundItem.date);
         const endDate = isRecurring ? new Date(boundItem.endDate) : new Date();
@@ -191,17 +221,6 @@ class TransactionEdit extends Component {
                     }
                     <form onSubmit={this.handleSubmit}>
                         <div className="row">
-                            <FormGroup className="col-md-8 mb-3">
-                                <TextField id="description" label="Description" value={boundItem.description || ''}
-                                           onChange={this.handleChange} />
-                            </FormGroup>
-                            <FormGroup className="col-md-4 mb-3">
-                                <TextField id="amount" label="Amount" value={boundItem.amount || 0.00}
-                                           onChange={this.handleChange}
-                                           InputProps={{
-                                               startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                           }} />
-                            </FormGroup>
                             <FormGroup className="col-md-4 mb-3">
                                 <FormControlLabel
                                     control={
@@ -214,6 +233,17 @@ class TransactionEdit extends Component {
                                         />}
                                     label="Recurring?"
                                 />
+                            </FormGroup>
+                            <FormGroup className="col-md-8 mb-3">
+                                <TextField id="description" label="Description" value={boundItem.description || ''}
+                                           onChange={this.handleChange} />
+                            </FormGroup>
+                            <FormGroup className="col-md-4 mb-3">
+                                <TextField id="amount" label="Amount" value={boundItem.amount}
+                                           onChange={this.handleChange}
+                                           InputProps={{
+                                               startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                           }} />
                             </FormGroup>
                             <FormGroup className="col-md-4 mb-3">
                                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -259,6 +289,10 @@ class TransactionEdit extends Component {
                                                onChange={this.handleIntervalChange}
                                                hidden={!isRecurring || boundItem.type === "DAYS_OF_MONTH"}
                                     />
+                                    <TextField id="dayOfMonth" label="Day of Month" value={boundItem.dayOfMonth || ''}
+                                               onChange={this.handleDayOfMonthChange}
+                                               hidden={!isRecurring || boundItem.type === "INTERVAL_FREQUENCY"}
+                                    />
                                 </FormGroup>
                             </FormGroup>
                         </div>
@@ -267,6 +301,29 @@ class TransactionEdit extends Component {
                             <FormControl className="col-md-4 mb-3">
                                 <Select value={account.name} id={"account-select"} labelId={"account-select-label"}
                                     onChange={this.handleAccountChange}>
+                                    {accountsForLookup.map(acc =>
+                                        <MenuItem key={acc.id} value={acc.name}>{acc.name}</MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </FormGroup>
+                        <FormGroup className="col-md-4 mb-3">
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={isTransfer}
+                                    onChange={this.handleTransferChange}
+                                    color="primary"
+                                    inputProps={{ 'aria-label': 'secondary checkbox' }}
+                                />}
+                            label="Transfer?"
+                        />
+                    </FormGroup>
+                        <FormGroup hidden={!isTransfer}>
+                            <InputLabel id="to-account-select-label">To Account</InputLabel>
+                            <FormControl className="col-md-4 mb-3">
+                                <Select value={toAccount.name} id={"to-account-select"} labelId={"to-account-select-label"}
+                                        onChange={this.handleToAccountChange}>
                                     {accountsForLookup.map(acc =>
                                         <MenuItem key={acc.id} value={acc.name}>{acc.name}</MenuItem>
                                     )}
