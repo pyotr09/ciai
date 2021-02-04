@@ -16,6 +16,8 @@ class Api {
     };
 
     BASE_ACCOUNTS_URL = '/accounts';
+    BASE_GOALS_URL = '/goals';
+    BASE_GAB_URL = '/goalAccountBalances';
     BASE_TRANS_URL = '/transactions';
     BASE_RECURTRANS_URL = '/recurringTransactions';
 
@@ -251,6 +253,84 @@ class Api {
     async calculateProjection(date) {
         return await fetch(`/projection/calculate?userId=${this.user.sub}&startDate=${new Date().toLocaleDateString()}&endDate=${date.toLocaleDateString()}`, {
             method: 'GET',
+            headers: this.createHeaders()
+        });
+    }
+
+    async createGoal(item, projections) {
+        const goalResponse = await fetch(this.BASE_GOALS_URL, {
+            method: 'POST',
+            headers: this.createHeaders(),
+            body: JSON.stringify(item)
+        });
+
+        if (!goalResponse.ok) return goalResponse;
+
+        const goal = await goalResponse.json();
+
+        for (const projection of projections) {
+            const newGab = {balance: projection.balance};
+            await this.createGoalAccountBalance(newGab, goal, projection.account);
+        }
+        return goalResponse;
+    }
+
+    async createGoalAccountBalance(item, goal, account) {
+        let gabResponse =  await fetch(this.BASE_GAB_URL, {
+            method: 'POST',
+            headers: this.createHeaders(),
+            body: JSON.stringify(item)
+        });
+
+        const gab = await gabResponse.json();
+        await fetch(`${this.BASE_GAB_URL}/${gab.id}/account`, {
+            method: 'PUT',
+            headers: this.createUriListHeaders(),
+            body: `/accounts/${account.id}`
+        });
+
+        await fetch(`${this.BASE_GAB_URL}/${gab.id}/goal`, {
+            method: 'PUT',
+            headers: this.createUriListHeaders(),
+            body: `/goals/${goal.id}`
+        });
+
+        return gabResponse;
+    }
+
+    async updateGoalAccountBalance(item, goal, account) {
+        let gabResponse =  await fetch(this.BASE_GAB_URL, {
+            method: 'PUT',
+            headers: this.createHeaders(),
+            body: JSON.stringify(item)
+        });
+
+        await fetch(`${this.BASE_GAB_URL}/${item.id}/account`, {
+            method: 'PUT',
+            headers: this.createUriListHeaders(),
+            body: `/accounts/${account.id}`
+        });
+
+        await fetch(`${this.BASE_GAB_URL}/${item.id}/goal`, {
+            method: 'PUT',
+            headers: this.createUriListHeaders(),
+            body: `/goals/${goal.id}`
+        });
+
+        return gabResponse;
+    }
+
+    async getAllGoalsForUser() {
+        return await fetch(`/goal/get?userId=${this.user.sub}`, {
+            method: 'GET',
+            headers: this.createHeaders()
+        });
+    }
+
+    async deleteGoal(id) {
+
+        return await fetch(`${this.BASE_GOALS_URL}/${id}`, {
+            method: 'DELETE',
             headers: this.createHeaders()
         });
     }

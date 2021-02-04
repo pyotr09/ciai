@@ -19,7 +19,7 @@ class Home extends Component {
                             <p>Welcome, {this.props.user.name}</p>
                             <Button variant="contained" color="primary" component={Link} to="/accounts">Manage Accounts</Button>
                             <Button variant="contained" color="primary" component={Link} to="/transactions">Manage Transactions</Button>
-                            <Projection api={this.props.api}/>
+                            <Projection api={this.props.api} userId={this.props.user.sub}/>
                         </div> :
                         <div>
                             <p>Please log in.</p>

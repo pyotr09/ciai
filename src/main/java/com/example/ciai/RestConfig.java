@@ -1,9 +1,6 @@
 package com.example.ciai;
 
-import com.example.ciai.models.Account;
-import com.example.ciai.models.RecurringTransaction;
-import com.example.ciai.models.Transaction;
-import com.example.ciai.models.User;
+import com.example.ciai.models.*;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.stereotype.Component;
@@ -18,6 +15,8 @@ public class RestConfig implements RepositoryRestConfigurer {
         config.exposeIdsFor(Account.class);
         config.exposeIdsFor(Transaction.class);
         config.exposeIdsFor(RecurringTransaction.class);
+        config.exposeIdsFor(Goal.class);
+        config.exposeIdsFor(GoalAccountBalance.class);
     }
 
 }

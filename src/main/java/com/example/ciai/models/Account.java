@@ -47,4 +47,6 @@ public class Account {
     @OneToMany(mappedBy = "toAccount")
     private List<RecurringTransaction> inRecurringTransactions;
 
+    @OneToMany(mappedBy = "account")
+    private List<GoalAccountBalance> goalAccountBalances;
 }
